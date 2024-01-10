@@ -1,0 +1,23 @@
+0.split whole video into segements
+
+python split_video_segments.py 
+
+
+1.generate dataset 
+
+python tools/kinetics_gendata.py --data_path /home/cqy/Documents/cqy/handwashing/hand_hygiene/dataset-preprocessed/videos 
+
+ 
+
+2.install requirements and model trainig 
+
+pip install -r requirements.txt
+python main.py recognition -c config/st_gcn/handwash/train.yaml 
+
+ 
+
+3.inference 
+
+export LD_LIBRARY_PATH=/home/cqy/anaconda3/envs/handhy/lib/python3.7/site-packages/nvidia/cublas/lib/:$LD_LIBRARY_PATH 
+
+python kaggle_get_one_prediction.py -c config/st_gcn/handwash/inference.yaml 

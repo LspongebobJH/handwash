@@ -1,0 +1,14 @@
+*.mp4
+*.npy
+*.pkl
+*.pt
+*.pyc
+*.prototxt
+*.caffemodel
+*.png
+*.gif
+*.txt
+LICENSE
+build/
+dist/
+torchlight.egg-info/

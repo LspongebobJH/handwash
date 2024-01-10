@@ -1,0 +1,19 @@
+weights: ./work_dir/recognition/handwash/ST_GCN/epoch1000_model.pt
+
+# feeder
+feeder: feeder.feeder.Feeder
+
+# model
+model: net.st_gcn.Model
+model_args:
+  in_channels: 3
+  num_class: 7
+  edge_importance_weighting: True
+  graph_args:
+    layout: "hand_wash"
+    strategy: "spatial"
+
+# test
+phase: inference
+device: 0
+test_batch_size: 1

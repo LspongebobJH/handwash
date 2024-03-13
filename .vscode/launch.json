@@ -1,0 +1,29 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "model_main",
+            "type": "python",
+            "request": "launch",
+            "program": "main.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": ["recognition", "-c", "config/st_gcn/handwash/test.yaml"],
+            "cwd": "/home/ubuntu/handwash/Model_training_and_inference"
+        },
+
+        {
+            "name": "infer",
+            "type": "python",
+            "request": "launch",
+            "program": "kaggle_get_one_prediction.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": ["-c", "config/st_gcn/handwash/inference.yaml"],
+            "cwd": "/home/ubuntu/handwash/Model_training_and_inference"
+        }
+    ]
+}

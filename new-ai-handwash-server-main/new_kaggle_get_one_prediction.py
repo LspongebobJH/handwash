@@ -17,8 +17,8 @@ wind_leng = 25
 image_size=(1080, 1920)
 interpolation='bilinear'
 num_channels = 3
-saved_skelton_video = "video_with_keypoints_1.mp4"
-saved_wash_step_video = "video_with_wash_step_1.mp4"
+saved_skelton_video = "video_with_keypoints.mp4"
+saved_wash_step_video = "video_with_wash_step.mp4"
 
 
 num_hand_in = 4
@@ -150,7 +150,7 @@ def add_label_to_video(saved_skelton_video, saved_wash_step_video, action_list, 
     while is_success:    
         cv2.putText(image, action_list[frame_num], (10, 70),
                     cv2.FONT_HERSHEY_DUPLEX, 2.0, (0, 0, 255), 2, cv2.LINE_AA)
-        # cv2.imshow('video',image)
+        cv2.imshow('video',image)
         videoWrite.write(image)
         is_success, image = vid_cap.read()
         frame_num += 1

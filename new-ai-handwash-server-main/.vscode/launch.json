@@ -1,0 +1,16 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "kaggle_get_one_prediction",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "kaggle_get_one_prediction.py",
+            "console": "integratedTerminal",
+            "args": ["-c", "/home/ubuntu/handwash/new-ai-handwash-server-main/config/st_gcn/handwash/inference.yaml"]
+        }
+    ]
+}

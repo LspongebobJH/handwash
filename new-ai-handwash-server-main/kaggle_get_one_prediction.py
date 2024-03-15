@@ -47,10 +47,74 @@ num_hand_out = 2
 key_point_number = 21
 
 # define variables for hand key points
-# mp_drawing = mp.solutions.drawing_utils
-# mp_drawing_styles = mp.solutions.drawing_styles
-# mp_hands = mp.solutions.hands
+mp_drawing = mp.solutions.drawing_utils
+mp_drawing_styles = mp.solutions.drawing_styles
+mp_hands = mp.solutions.hands
 
+def get_hand_key_point_original(IMAGE_FILES):
+    # For static images:
+
+    with mp_hands.Hands(
+        static_image_mode=True,
+        max_num_hands=4,
+        min_detection_confidence=0.5) as hands:
+
+        # Read an image, flip it around y-axis for correct handedness output (see
+        # above).
+        image = cv2.flip(IMAGE_FILES, 1)
+        
+        # Convert the BGR image to RGB before processing.
+        results = hands.process(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+        
+        #set initial value for keypoint
+        key_point_numpy = np.zeros((num_channels, key_point_number, num_hand_in))
+        score_numpy = np.zeros(num_hand_in) # mofidy the order of skeleton according to the score for each hand
+
+        # Print handedness and draw hand landmarks on the image.
+        # print('Handedness:', results.multi_handedness[0].classification[0].score)
+        if results.multi_hand_landmarks:
+            image_height, image_width, _ = image.shape
+            annotated_image = image.copy()
+            
+            #record each hand information for each hand 
+            for m, hand_landmarks in enumerate(results.multi_hand_landmarks):
+                # print('hand_landmarks:', hand_landmarks.landmark[20].x)
+                # print(
+                #     f'Index finger tip coordinates: (',
+                #     f'{hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP].x * image_width}, '
+                #     f'{hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP].y * image_height})'
+                # )
+                score_numpy[m] = results.multi_handedness[m].classification[0].score
+                mp_drawing.draw_landmarks(
+                    annotated_image,
+                    hand_landmarks,
+                    mp_hands.HAND_CONNECTIONS,
+                    mp_drawing_styles.get_default_hand_landmarks_style(),
+                    mp_drawing_styles.get_default_hand_connections_style())
+                
+                #record keypoint information for each point
+                for key_p in range(21):
+                    key_point_numpy[0, key_p, m] = hand_landmarks.landmark[key_p].x
+                    key_point_numpy[1, key_p, m] = hand_landmarks.landmark[key_p].y
+                    key_point_numpy[2, key_p, m] = hand_landmarks.landmark[key_p].z
+
+            IMAGE_FILES_labeled = cv2.flip(annotated_image, 1)
+    
+        else:
+            IMAGE_FILES_labeled = cv2.flip(image, 1)
+
+        # get hands with largest score
+        sort_index = (-score_numpy).argsort()
+
+        key_point_numpy[:, :, :] = key_point_numpy[:, :, sort_index] #not understand transpose C*T*V*M to V*T*M*C
+    
+        key_point_numpy = key_point_numpy[:, :, 0:num_hand_out]
+        
+        #combine the two hands into a graph
+        key_point_numpy = np.concatenate((key_point_numpy[:,:,0:1], key_point_numpy[:,:,1:2]), axis=-2)
+ 
+        return IMAGE_FILES_labeled, key_point_numpy
+    
 def get_hand_key_point(data):
     # For static images:
 
@@ -94,7 +158,8 @@ def split_and_prep_frame(input):
     keypoint_list = []
     
     for i in input:
-        key_points = get_hand_key_point(i)
+        # key_points = get_hand_key_point(i)
+        image, key_points = get_hand_key_point_original(i)
         keypoint_list.append(key_points)
         
     keypoint_tensor = np.stack(keypoint_list, axis = 1) 
@@ -133,7 +198,7 @@ def map_result_to_step(action_result):
         prob_list=softmax(action_type).tolist()
         print(f"normalized: {prob_list}")
         sorted_list=sort_list(prob_list[0])
-        print(f"sorted: {prob_list}")
+        print(f"sorted: {sorted_list}")
 
         if label == 0:
             action_list= {
@@ -177,18 +242,19 @@ async def index(request):
 # If we wanted to create a new websocket endpoint,
 # use this decorator, passing in the name of the
 # event we wish to listen out for
-@sio.on('message')
-async def print_message(sid, message):
+# @sio.on('message')
+# async def print_message(sid, message):
+def print_message(sid, message):
     # When we receive a new event of type
     # 'message' through a socket.io connection
     # we print the socket ID and the message
     # save_log(f"Socket ID: {sid}")
-    print(f"message: {message}")
+    # print(f"message: {message}")
     # save_log(type(message))
     # get key point information and video with skeleton
     keypoint_input = split_and_prep_frame(message)
-    print(f"keypoint_input: {keypoint_input}")
-    print(f"keypoint_input shape: {len(keypoint_input)} {keypoint_input[0].shape}")
+    # print(f"keypoint_input: {keypoint_input}")
+    # print(f"keypoint_input shape: {len(keypoint_input)} {keypoint_input[0].shape}")
     
     # load model and inference with the loaded model
     test_list = [keypoint_input]
@@ -198,8 +264,10 @@ async def print_message(sid, message):
     # save_log(f"processor.result {processor.result}" )
     # print("processor.result", processor.result[0].shape)
     action_list = map_result_to_step(processor.result)
-    print(f"action_list {action_list}")
-    await sio.emit('message', action_list)
+    # print(f"action_list {action_list}")
+    print(f"action {action_list['step']}")
+    return action_list['step']
+    # await sio.emit('message', action_list)
     # save_log(f"Send back message: {action_list}")
 # We bind our aiohttp endpoint to our app
 # router
@@ -208,7 +276,21 @@ app.router.add_get('/', index)
 # We kick off our server
 if __name__ == '__main__':
     # change the port as the default port number 8080 has been occupied
-    web.run_app(app,port=9500)
+    # web.run_app(app,port=9500)
+    video_path = '/home/ubuntu/handwash/Model_training_and_inference/20221014_670_1.mp4'
+    vid_cap = cv2.VideoCapture(video_path)
+    is_success = True
+    image_queue = []
+    step_list = []
+    while is_success:
+        is_success, image = vid_cap.read()
+        image_queue.append(image)
+        if len(image_queue) == 25:
+            step = print_message(None, image_queue)
+            step_list.append(step)
+            del image_queue[0]
+    print(f"step list {step_list}")
+
 
 # # get key point information and video with skeleton
 # keypoint_input = split_and_prep_frame()

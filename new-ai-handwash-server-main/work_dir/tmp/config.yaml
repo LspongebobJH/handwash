@@ -1,8 +1,8 @@
-# command line: kaggle_get_one_prediction.py -c config\st_gcn\handwash\inference.yaml
+# command line: kaggle_get_one_prediction.py -c /home/ubuntu/handwash/new-ai-handwash-server-main/config/st_gcn/handwash/inference.yaml
 
 base_lr: 0.01
 batch_size: 256
-config: config\st_gcn\handwash\inference.yaml
+config: /home/ubuntu/handwash/new-ai-handwash-server-main/config/st_gcn/handwash/inference.yaml
 debug: false
 device: 0
 eval_interval: 20

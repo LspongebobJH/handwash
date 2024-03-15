@@ -17,8 +17,8 @@ wind_leng = 25
 image_size=(1080, 1920)
 interpolation='bilinear'
 num_channels = 3
-saved_skelton_video = "video_with_keypoints_1.mp4"
-saved_wash_step_video = "video_with_wash_step_1.mp4"
+saved_skelton_video = "video_with_keypoints_2.mp4"
+saved_wash_step_video = "video_with_wash_step_2.mp4"
 
 
 num_hand_in = 4

@@ -120,41 +120,41 @@ def get_hand_key_point_original(IMAGE_FILES):
 def get_hand_key_point(data):
     # For static images:
 
-        key_point_numpy = np.zeros((num_channels, key_point_number, num_hand_in))
-        score_numpy = np.zeros(num_hand_in) # mofidy the order of skeleton according to the score for each hand
-        
-        # Open the JSON file for reading
-        # with open('test2.json', 'r') as json_file:
-        #     data = json.load(json_file)
-            
-        for index, side in enumerate(data):
-            keypoints3D = data[side][0]["keypoints3D"]
-            score_numpy[index] = data[side][0]["score"]
-            
-            for number, point in enumerate(keypoints3D):
-                key_point_numpy[0, number, index] = point['x']
-                key_point_numpy[1, number, index] = point['y']
-                key_point_numpy[2, number, index] = point['z']
-
-        # for i in data:        
-        #     for index, side in enumerate(i):
-        #         keypoints3D = i[side][0]["keypoints3D"]
-        #         score_numpy[index] = i[side][0]["score"]
-                
-        #         for number, point in enumerate(keypoints3D):
-        #             key_point_numpy[0, number, index] = point['x']
-        #             key_point_numpy[1, number, index] = point['y']
-        #             key_point_numpy[2, number, index] = point['z']        
+    key_point_numpy = np.zeros((num_channels, key_point_number, num_hand_in))
+    score_numpy = np.zeros(num_hand_in) # mofidy the order of skeleton according to the score for each hand
     
-                
-        # get hands with largest score
-        sort_index = (-score_numpy).argsort()
-
-        key_point_numpy[:, :, :] = key_point_numpy[:, :, sort_index] #not understand transpose C*T*V*M to V*T*M*C
+    # Open the JSON file for reading
+    # with open('test2.json', 'r') as json_file:
+    #     data = json.load(json_file)
         
-        key_point_numpy = key_point_numpy[:, :, 0:num_hand_out]
-        key_point_numpy=np.concatenate((key_point_numpy[:,:,0:1],key_point_numpy[:,:,1:2]),axis=-2)
-        return key_point_numpy
+    for index, side in enumerate(data):
+        keypoints3D = data[side][0]["keypoints3D"]
+        score_numpy[index] = data[side][0]["score"]
+        
+        for number, point in enumerate(keypoints3D):
+            key_point_numpy[0, number, index] = point['x']
+            key_point_numpy[1, number, index] = point['y']
+            key_point_numpy[2, number, index] = point['z']
+
+    # for i in data:        
+    #     for index, side in enumerate(i):
+    #         keypoints3D = i[side][0]["keypoints3D"]
+    #         score_numpy[index] = i[side][0]["score"]
+            
+    #         for number, point in enumerate(keypoints3D):
+    #             key_point_numpy[0, number, index] = point['x']
+    #             key_point_numpy[1, number, index] = point['y']
+    #             key_point_numpy[2, number, index] = point['z']        
+
+            
+    # get hands with largest score
+    sort_index = (-score_numpy).argsort()
+
+    key_point_numpy[:, :, :] = key_point_numpy[:, :, sort_index] #not understand transpose C*T*V*M to V*T*M*C
+    
+    key_point_numpy = key_point_numpy[:, :, 0:num_hand_out]
+    key_point_numpy=np.concatenate((key_point_numpy[:,:,0:1],key_point_numpy[:,:,1:2]),axis=-2)
+    return key_point_numpy
 
 def split_and_prep_frame(input, frontend=False):
     keypoint_list = []
@@ -257,24 +257,24 @@ def print_message(sid, message):
     # save_log(type(message))
     # get key point information and video with skeleton
     keypoint_input = split_and_prep_frame(message)
-    pass
+    
     # print(f"keypoint_input: {keypoint_input}")
     # print(f"keypoint_input shape: {len(keypoint_input)} {keypoint_input[0].shape}")
     
     # load model and inference with the loaded model
     
     # TODO(jiahang): only for testing frontend
-    # processor = REC_Processor(sys.argv[1:])
-    # processor.start(keypoint_input)
+    processor = REC_Processor(sys.argv[1:])
+    processor.start(keypoint_input)
 
     # save_log(f"processor.result {processor.result}" )
     # print("processor.result", processor.result[0].shape)
 
     # TODO(jiahang): only for testing frontend
-    # action_list = map_result_to_step(processor.result)
+    action_list = map_result_to_step(processor.result)
     # print(f"action_list {action_list}")
     # print(f"action {action_list['step']}")
-    # return action_list['step']
+    return action_list['step']
 
     # await sio.emit('message', action_list)
     # save_log(f"Send back message: {action_list}")
@@ -298,16 +298,19 @@ if __name__ == '__main__':
     cnt = 0
 
     # NOTE(jiahang): imitate the real-time streamline processing
-    # while is_success:
-    #     cnt += 1
-    #     print(f"cnt: {cnt}")
-    #     is_success, image = vid_cap.read()
-    #     image_queue.append(image)
-    #     if len(image_queue) == 25:
-    #         step = print_message(None, image_queue)
-    #         step_list.append(step)
-    #         del image_queue[0]
-    # print(f"step list {step_list}")
+    while is_success:
+        cnt += 1
+        print(f"cnt: {cnt}")
+        is_success, image = vid_cap.read()
+        if not is_success:
+            break
+        image_queue.append(image)
+        if len(image_queue) == 25:
+            step = print_message(None, image_queue)
+            step_list.append(step)
+            print(f"step: {step}")
+            del image_queue[0]
+    print(f"step list {step_list}")
 
     # NOTE(jiahang): an easy way to obtain keypoints
     # keypoints_list = []
@@ -318,19 +321,36 @@ if __name__ == '__main__':
     #     if not is_success:
     #         break
     #     _, keypoints = get_hand_key_point_original(image)
-    #     keypoints_list.extend(keypoints)
+    #     keypoints_list.append(keypoints)
     # with open('./test_keypoints_list.pkl', 'wb') as f:
     #     pickle.dump(keypoints_list, f)
     # print("Done")
 
     # NOTE(jiahang): the original frontend logic
-    json_path = "/home/hhyg/handwash/new-ai-handwash-server-main/test_data/data.json"
-    with open(json_path, 'r') as f:
-        test_keypoints = json.load(f)
-    keypoint_input = split_and_prep_frame(test_keypoints, frontend=True)
-    pass
-    # keypoints_list.extend(keypoints)
-    print("Done")
+    # json_path = "/home/hhyg/handwash/new-ai-handwash-server-main/test_data/data.json"
+    # with open(json_path, 'r') as f:
+    #     test_keypoints = json.load(f)
+    
+    # step_list, prob_list = [], []
+    # from tqdm import tqdm
+    # for keypoints in tqdm(test_keypoints):
+    #     keypoint_input = split_and_prep_frame(keypoints, frontend=True)
+
+    #     # model inference
+    #     test_list = [keypoint_input]
+    #     processor = REC_Processor(sys.argv[1:])
+    #     processor.start(keypoint_input)
+    #     result = processor.result
+    #     output = map_result_to_step(result)
+    #     step_list.append(output['step'])
+    #     prob_list.append(output['probabilities'])
+    
+    # with open('step_list.pkl', 'wb') as f:
+    #     pickle.dump(step_list, f)
+    # with open('prob_list.pkl', 'wb') as f:
+    #     pickle.dump(prob_list, f)
+    # # keypoints_list.extend(keypoints)
+    # print("Done")
 
 # # get key point information and video with skeleton
 # keypoint_input = split_and_prep_frame()

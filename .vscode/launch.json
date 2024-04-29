@@ -23,7 +23,7 @@
             "console": "integratedTerminal",
             "justMyCode": true,
             "args": ["-c", "config/st_gcn/handwash/inference.yaml"],
-            "cwd": "/home/ubuntu/handwash/Model_training_and_inference"
+            "cwd": "/home/hhyg/handwash/new-ai-handwash-server-main"
         }
     ]
 }

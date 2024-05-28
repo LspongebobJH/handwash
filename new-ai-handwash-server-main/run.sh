@@ -1,1 +1,1 @@
-/home/ubuntu/anaconda3/envs/handwash/bin/python /home/ubuntu/handwash/new-ai-handwash-server-main/kaggle_get_one_prediction.py -c /home/ubuntu/handwash/new-ai-handwash-server-main/config/st_gcn/handwash/inference.yaml
+python3 kaggle_get_one_prediction.py -c config/st_gcn/handwash/inference.yaml

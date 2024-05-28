@@ -1,4 +1,4 @@
-# command line: zy_test.py -c config/st_gcn/handwash/inference.yaml
+# command line: kaggle_get_one_prediction.py -c config/st_gcn/handwash/inference.yaml
 
 base_lr: 0.01
 batch_size: 256

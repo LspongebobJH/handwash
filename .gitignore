@@ -12,3 +12,8 @@ LICENSE
 build/
 dist/
 torchlight.egg-info/
+freihand_dataset/
+freihand_dataset2/
+kinetics-skeleton.zip
+kinetics-skeleton/
+

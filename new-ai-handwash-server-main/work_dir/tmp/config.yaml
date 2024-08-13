@@ -37,5 +37,5 @@ test_feeder_args: {}
 train_feeder_args: {}
 use_gpu: true
 weight_decay: 0.0001
-weights: ./work_dir/recognition/handwash/ST_GCN/epoch1000_model.pt
+weights: /home/hhyg/handwash/checkpoints/rot_norm/epoch1000_model.pt
 work_dir: ./work_dir/tmp

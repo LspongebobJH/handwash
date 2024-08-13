@@ -40,7 +40,7 @@ def auto_pading(data_numpy, size, random_pad=False):
 
 
 def random_choose(data_numpy, size, auto_pad=True):
-    # input: C,T,V,M
+    # input: C - 3 dimensions, T - window size, V - 21 (left) + 21 (right) points, M - 1
     C, T, V, M = data_numpy.shape
     if T == size:
         return data_numpy
@@ -86,7 +86,7 @@ def random_move(data_numpy,
                                                node[i + 1] - node[i])
         t_y[node[i]:node[i + 1]] = np.linspace(T_y[i], T_y[i + 1],
                                                node[i + 1] - node[i])
-
+    # a: random rotation. s: random scale. all small.
     theta = np.array([[np.cos(a) * s, -np.sin(a) * s],
                       [np.sin(a) * s, np.cos(a) * s]])
 

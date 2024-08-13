@@ -1,4 +1,5 @@
-weights: ./work_dir/recognition/handwash/ST_GCN/epoch1000_model.pt
+#weights: ./work_dir/recognition/handwash/ST_GCN/epoch1000_model.pt
+weights: /home/hhyg/handwash/checkpoints/rot_norm/epoch1000_model.pt
 
 # feeder
 feeder: feeder.feeder.Feeder

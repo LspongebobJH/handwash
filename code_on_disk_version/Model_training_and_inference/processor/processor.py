@@ -51,7 +51,8 @@ class Processor(IO):
         self.data_loader = dict()
         if self.arg.phase == 'train':
             self.data_loader['train'] = torch.utils.data.DataLoader(
-                dataset=Feeder(**self.arg.train_feeder_args),
+                dataset=Feeder(config_file_path = self.arg.config_file_path,
+                               **self.arg.train_feeder_args),
                 batch_size=self.arg.batch_size,
                 shuffle=True,
                 num_workers=self.arg.num_worker * torchlight.ngpu(
@@ -59,7 +60,8 @@ class Processor(IO):
                 drop_last=True)
         if self.arg.test_feeder_args:
             self.data_loader['test'] = torch.utils.data.DataLoader(
-                dataset=Feeder(**self.arg.test_feeder_args),
+                dataset=Feeder(config_file_path = self.arg.config_file_path,
+                               **self.arg.test_feeder_args),
                 batch_size=self.arg.test_batch_size,
                 shuffle=False,
                 num_workers=self.arg.num_worker * torchlight.ngpu(

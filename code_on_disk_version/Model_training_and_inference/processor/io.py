@@ -31,6 +31,13 @@ class IO():
     def load_arg(self, argv=None):
         parser = self.get_parser()
 
+        # NOTE(JH): for quick implementation
+        parser.add_argument('--config_file_path', type=str, default='')
+        parser.add_argument('--max_min_norm', default=False, action="store_true")
+        parser.add_argument('--rotation', default=False, action="store_true")
+        parser.add_argument('--rot_min', type=int, default=0)
+        parser.add_argument('--rot_max', type=int, default=360)
+
         # load arg form config file
         p = parser.parse_args(argv)
         if p.config is not None:

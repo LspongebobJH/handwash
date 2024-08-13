@@ -1,4 +1,12 @@
-work_dir: ./work_dir/recognition/handwash/ST_GCN
+work_dir: ./work_dir/recognition/handwash/ST_GCN_1
+config_file_path : /home/hhyg/handwash/code_on_disk_version/Model_training_and_inference/config/st_gcn/handwash/jh/train_1.yaml
+
+# feeder augmentation
+max_min_norm : False
+rotation : True
+rot_min : 0
+rot_max : 360
+
 # feeder
 feeder: feeder.feeder.Feeder
 train_feeder_args:

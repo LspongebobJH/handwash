@@ -297,7 +297,7 @@ def find_file(directory, filename):
 def count_step_samples(lablescnt, path_and_lables, i):
     lable = path_and_lables[0][i].split("_")[-2][-1]
     lablescnt[lable] += 1
-    if lablescnt[lable] < 50:
+    if lablescnt[lable] > 500:
         return True
     else:
         return False
@@ -372,7 +372,7 @@ if __name__ == '__main__':
 
         results_dict[filename] = ['lable:'+ str(path_and_lables[1][i]), step_list]
         print("results_dict[filename]", results_dict[filename])
-        np.save('results_test.npy', results_dict)
+        np.save('rot_norm_results_test.npy', results_dict)
         print("save results 66666666666666666666666666666666666666666666666666666666666666666")
 
 

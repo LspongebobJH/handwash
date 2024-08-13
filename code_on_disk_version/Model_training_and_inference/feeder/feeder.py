@@ -39,7 +39,8 @@ class Feeder(torch.utils.data.Dataset):
                  random_move=False,
                  window_size=-1,
                  debug=False,
-                 mmap=True):
+                 mmap=True,
+                 training=True):
         with open(config_file_path, 'r') as f:
             configs = yaml.safe_load(f)
         self.max_min_norm = configs['max_min_norm']
@@ -47,6 +48,7 @@ class Feeder(torch.utils.data.Dataset):
         self.rot_min, self.rot_max = configs['rot_min'], configs['rot_max']
 
         self.debug = debug
+        self.training = training
         self.data_path = data_path
         self.label_path = label_path
         self.random_choose = random_choose
@@ -82,26 +84,26 @@ class Feeder(torch.utils.data.Dataset):
         # get data
         data_numpy = np.array(self.data[index])
         label = self.label[index]
+        if self.training:
+            if self.rotation:
+                rot_list = list(range(self.rot_min, self.rot_max + 1, 45))
+                rot_deg = np.random.choice(rot_list)
+                r = R.from_euler('z', rot_deg, degrees=True)
+                original_shape = data_numpy.shape
+                data_numpy = data_numpy.reshape(3, -1).T
+                data_numpy = r.apply(data_numpy)
+                data_numpy = data_numpy.T.reshape(original_shape)
+            
+            if self.max_min_norm:
+                data_numpy = (data_numpy - data_numpy.min(-2, keepdims=True)) / \
+                        (data_numpy.max(-2, keepdims = True) - data_numpy.min(-2, keepdims=True) + 1e-4)
 
-        if self.rotation:
-            rot_list = list(range(self.rot_min, self.rot_max + 1, 45))
-            rot_deg = np.random.choice(rot_list)
-            r = R.from_euler('z', rot_deg, degrees=True)
-            original_shape = data_numpy.shape
-            data_numpy = data_numpy.reshape(3, -1).T
-            data_numpy = r.apply(data_numpy)
-            data_numpy = data_numpy.T.reshape(original_shape)
-        
-        if self.max_min_norm:
-            data_numpy = (data_numpy - data_numpy.min(-2, keepdims=True)) / \
-                    (data_numpy.max(-2, keepdims = True) - data_numpy.min(-2, keepdims=True) + 1e-4)
-
-        # processing
-        if self.random_choose: # all 25 window size, this func useless
-            data_numpy = tools.random_choose(data_numpy, self.window_size)
-        elif self.window_size > 0:
-            data_numpy = tools.auto_pading(data_numpy, self.window_size)
-        if self.random_move: # random rotation (-10 ~ 10) + random scale (0.9 ~ 1.1). all small.
-            data_numpy = tools.random_move(data_numpy)
+            # processing
+            if self.random_choose: # all 25 window size, this func useless
+                data_numpy = tools.random_choose(data_numpy, self.window_size)
+            elif self.window_size > 0:
+                data_numpy = tools.auto_pading(data_numpy, self.window_size)
+            if self.random_move: # random rotation (-10 ~ 10) + random scale (0.9 ~ 1.1). all small.
+                data_numpy = tools.random_move(data_numpy)
 
         return data_numpy, label

@@ -189,32 +189,45 @@ def sort_list(prob_list:list):
     copy.append(temp)
     return copy
 
-def map_result_to_step(action_result):
+step_threshold = {
+    1: 1. ,
+    2: 1. ,
+    3: 0.,
+    4: 0.,
+    5: 5.,
+    6: 5.,
+    7: -2.
+}
+
+def map_result_to_step(action_results, step=1):
     action_list = []
     # action_list.extend(["step: unknown"])
-    print(f"length of action_result: {len(action_result)}")
+    print(f"length of action_result: {len(action_results)}")
     
-    for action_type in action_result:
-        label = np.argmax(action_type)
-        print(f"action_type[0]: {action_type[0]}")
-        # save_log(f"label: {label}")
+    for _action_result in action_results:
+        _action_result = _action_result[0]
+        action_result = np.zeros_like(_action_result)
+        action_result[:-1]=_action_result[1:]
+        action_result[-1]=_action_result[0]
+        # label = np.argmax(action_result)+1
 
-        prob_list=softmax(action_type).tolist()
-        print(f"normalized: {prob_list}")
-        sorted_list=sort_list(prob_list[0])
-        print(f"sorted: {sorted_list}")
+        # prob_list=softmax(action_result).tolist()
+        # print(f"normalized: {prob_list}")
+        # sorted_list=sort_list(prob_list)
+        # print(f"sorted: {sorted_list}")
 
-        if label == 0:
-            action_list= {
-                "step":7,
-                "probabilities":sorted_list
-            }
+        cur_prob = action_result[step-1]
+        if cur_prob > step_threshold[step]:
+            ans = True
         else:
-            action_list= {
-                "step":label,
-                "probabilities":sorted_list
-            }
-        # action_list=("step: "+str(label+1))
+            ans = False
+        # action_list= {
+        #     "step":label,
+        #     "probabilities":sorted_list
+        # }
+        action_list = {
+            "ans": str(ans)
+        }
     return action_list
 
 
@@ -274,7 +287,7 @@ def print_message(sid, message):
     action_list = map_result_to_step(processor.result)
     # print(f"action_list {action_list}")
     # print(f"action {action_list['step']}")
-    return action_list['step']
+    return action_list['ans']
 
     # await sio.emit('message', action_list)
     # save_log(f"Send back message: {action_list}")

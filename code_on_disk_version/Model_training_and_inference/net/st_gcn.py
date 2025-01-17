@@ -91,7 +91,7 @@ class Model(nn.Module):
         x = self.fcn(x)
         x = x.view(x.size(0), -1)
 
-        return x
+        return x.flatten()
 
     def extract_feature(self, x):
 

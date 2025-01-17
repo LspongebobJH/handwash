@@ -35,6 +35,7 @@ class Feeder(torch.utils.data.Dataset):
                  config_file_path,
                  data_path,
                  label_path,
+                 step,
                  random_choose=False,
                  random_move=False,
                  window_size=-1,
@@ -47,6 +48,7 @@ class Feeder(torch.utils.data.Dataset):
         self.rotation = configs['rotation']
         self.rot_min, self.rot_max = configs['rot_min'], configs['rot_max']
 
+        self.step = step
         self.debug = debug
         self.training = training
         self.data_path = data_path
@@ -63,12 +65,28 @@ class Feeder(torch.utils.data.Dataset):
         # load label
         with open(self.label_path, 'rb') as f:
             self.sample_name, self.label = pickle.load(f)
+        self.label = torch.tensor(self.label)
 
         # load data
         if mmap:
             self.data = np.load(self.data_path, mmap_mode='r')
         else:
             self.data = np.load(self.data_path)
+
+        mask = (self.label == self.step)
+        mask_idx = torch.where(mask == True)[0]
+        neg_mask_idx = torch.where(mask == False)[0]
+        sel_neg_mask_idx = neg_mask_idx[
+            torch.randperm(
+                neg_mask_idx.shape[0]
+            )[:mask.sum()]
+        ]
+        data_pos = self.data[mask_idx]
+        data_neg = self.data[sel_neg_mask_idx]
+        self.data = np.concatenate([data_pos, data_neg])
+        self.label = torch.zeros(self.data.shape[0])
+        self.label[:mask_idx.shape[0]] = 1
+        self.label = self.label.float()
 
         if self.debug:
             self.label = self.label[0:100]

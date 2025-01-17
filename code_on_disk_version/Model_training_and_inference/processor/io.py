@@ -4,6 +4,7 @@ import sys
 import argparse
 import yaml
 import numpy as np
+import os
 
 # torch
 import torch
@@ -55,6 +56,11 @@ class IO():
             parser.set_defaults(**default_arg)
 
         self.arg = parser.parse_args(argv)
+        self.arg.step = self.arg.step[0]
+        self.arg.work_dir = os.path.join(
+            self.arg.work_dir,
+            'step_'+str(self.arg.step)
+        )
 
     def init_environment(self):
         self.io = torchlight.IO(
@@ -105,6 +111,7 @@ class IO():
 
         parser.add_argument('-w', '--work_dir', default='./work_dir/tmp', help='the work folder for storing results')
         parser.add_argument('-c', '--config', default=None, help='path to the configuration file')
+        parser.add_argument('--step', default=None, type=int, help='certain step used to train binary classifier')
 
         # processor
         parser.add_argument('--use_gpu', type=str2bool, default=True, help='use GPUs or not')

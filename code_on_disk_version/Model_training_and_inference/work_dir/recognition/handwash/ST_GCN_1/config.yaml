@@ -1,4 +1,4 @@
-# command line: main.py recognition -c config/st_gcn/handwash/jh/train_1.yaml
+# command line: main.py recognition -c config/st_gcn/handwash/jh/train_1.yaml --step 1
 
 base_lr: 0.1
 batch_size: 128
@@ -37,11 +37,7 @@ show_topk:
 - 1
 - 5
 start_epoch: 0
-step:
-- 20
-- 30
-- 40
-- 50
+step: 1
 test_batch_size: 128
 test_feeder_args:
     data_path: ./data/handwash/test_data.npy

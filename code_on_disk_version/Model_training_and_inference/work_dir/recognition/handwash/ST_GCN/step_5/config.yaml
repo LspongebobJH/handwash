@@ -1,4 +1,4 @@
-# command line: main.py recognition -c config/st_gcn/handwash/train.yaml --step 1
+# command line: main.py recognition -c config/st_gcn/handwash/train.yaml --step 5
 
 base_lr: 0.1
 batch_size: 128
@@ -37,7 +37,7 @@ show_topk:
 - 1
 - 5
 start_epoch: 0
-step: 1
+step: 5
 test_batch_size: 128
 test_feeder_args:
     data_path: ./data/handwash/test_data.npy
@@ -51,4 +51,4 @@ train_feeder_args:
 use_gpu: true
 weight_decay: 0.0001
 weights: null
-work_dir: ./work_dir/recognition/handwash/ST_GCN
+work_dir: ./work_dir/recognition/handwash/ST_GCN/step_5

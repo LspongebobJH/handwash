@@ -8,6 +8,7 @@ import numpy as np
 # torch
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 import torch.optim as optim
 
 # torchlight
@@ -41,7 +42,7 @@ class REC_Processor(Processor):
         self.model = self.io.load_model(self.arg.model,
                                         **(self.arg.model_args))
         self.model.apply(weights_init)
-        self.loss = nn.CrossEntropyLoss()
+        self.loss = nn.BCEWithLogitsLoss()
         
     def load_optimizer(self):
         if self.arg.optimizer == 'SGD':
@@ -85,7 +86,7 @@ class REC_Processor(Processor):
 
             # get data
             data = data.float().to(self.dev)
-            label = label.long().to(self.dev)
+            label = label.to(self.dev)
             # forward
             
             output = self.model(data)
@@ -121,28 +122,30 @@ class REC_Processor(Processor):
             
             # get data
             data = data.float().to(self.dev)
-            label = label.long().to(self.dev)
+            label = label.to(self.dev)
 
             # inference
             with torch.no_grad():
                 output = self.model(data)
-            result_frag.append(output.data.cpu().numpy())
+            result_frag.append(output.data.cpu())
 
             # get loss
             if evaluation:
                 loss = self.loss(output, label)
                 loss_value.append(loss.item())
-                label_frag.append(label.data.cpu().numpy())
+                label_frag.append(label.data.cpu())
 
-        self.result = np.concatenate(result_frag)
+        self.result = torch.concat(result_frag)
         if evaluation:
-            self.label = np.concatenate(label_frag)
+            self.label = torch.concat(label_frag)
             self.epoch_info['mean_loss']= np.mean(loss_value)
             self.show_epoch_info()
 
-            # show top-k accuracy
-            for k in self.arg.show_topk:
-                self.show_topk(k)
+        label_pred = (F.sigmoid(self.result) > 0.5).int()
+        right_cnt = (label_pred == self.label).sum()
+        accuracy = right_cnt / len(self.label)
+        self.io.print_log('\Acc: {:.2f}%'.format(100 * accuracy))
+            
 
     def inference(self, data_list, evaluation=True):
 

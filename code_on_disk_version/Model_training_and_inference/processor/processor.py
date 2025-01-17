@@ -52,6 +52,7 @@ class Processor(IO):
         if self.arg.phase == 'train':
             self.data_loader['train'] = torch.utils.data.DataLoader(
                 dataset=Feeder(config_file_path = self.arg.config_file_path, training = True,
+                               step = self.arg.step,
                                **self.arg.train_feeder_args),
                 batch_size=self.arg.batch_size,
                 shuffle=True,
@@ -61,6 +62,7 @@ class Processor(IO):
         if self.arg.test_feeder_args:
             self.data_loader['test'] = torch.utils.data.DataLoader(
                 dataset=Feeder(config_file_path = self.arg.config_file_path, training = False,
+                               step = self.arg.step,
                                **self.arg.test_feeder_args),
                 batch_size=self.arg.test_batch_size,
                 shuffle=False,

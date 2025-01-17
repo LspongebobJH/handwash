@@ -11,7 +11,8 @@
             "program": "main.py",
             "console": "integratedTerminal",
             "justMyCode": true,
-            "args": ["recognition", "-c", "config/st_gcn/handwash/jh/train_1.yaml"]
+            "args": ["recognition", "-c", "config/st_gcn/handwash/train.yaml",
+                     "--step", "1"]
         }
     ]
 }

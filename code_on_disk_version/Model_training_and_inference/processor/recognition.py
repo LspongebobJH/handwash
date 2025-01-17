@@ -8,6 +8,7 @@ import numpy as np
 # torch
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 import torch.optim as optim
 
 # torchlight
@@ -38,24 +39,30 @@ class REC_Processor(Processor):
     """
 
     def load_model(self):
-        self.model = self.io.load_model(self.arg.model,
-                                        **(self.arg.model_args))
-        self.model.apply(weights_init)
-        self.loss = nn.CrossEntropyLoss()
+        self.model_list = []
+        for _ in range(7):
+            model = self.io.load_model(self.arg.model, **(self.arg.model_args))
+            model.apply(weights_init)
+            self.model_list.append(model)
+        self.loss = F.cross_entropy
         
     def load_optimizer(self):
+        self.optim_list = []
         if self.arg.optimizer == 'SGD':
-            self.optimizer = optim.SGD(
-                self.model.parameters(),
-                lr=self.arg.base_lr,
-                momentum=0.9,
-                nesterov=self.arg.nesterov,
-                weight_decay=self.arg.weight_decay)
+            for _ in range(7):
+                self.optim_list.append(optim.SGD(
+                    self.model_list[_].parameters(),
+                    lr=self.arg.base_lr,
+                    momentum=0.9,
+                    nesterov=self.arg.nesterov,
+                    weight_decay=self.arg.weight_decay))
+                
         elif self.arg.optimizer == 'Adam':
-            self.optimizer = optim.Adam(
-                self.model.parameters(),
-                lr=self.arg.base_lr,
-                weight_decay=self.arg.weight_decay)
+            for _ in range(7):
+                self.optim_list.append(optim.Adam(
+                    self.model_list[_].parameters(),
+                    lr=self.arg.base_lr,
+                    weight_decay=self.arg.weight_decay))
         else:
             raise ValueError()
 
@@ -76,7 +83,6 @@ class REC_Processor(Processor):
         self.io.print_log('\tTop{}: {:.2f}%'.format(k, 100 * accuracy))
 
     def train(self):
-        self.model.train()
         self.adjust_lr()
         loader = self.data_loader['train']
         loss_value = []
@@ -88,7 +94,9 @@ class REC_Processor(Processor):
             label = label.long().to(self.dev)
             # forward
             
-            output = self.model(data)
+            model = self.model_list[label]
+            model.train()
+            output = model(data)
             # print("data", data.shape)
             # print("label", label)
             loss = self.loss(output, label)
@@ -111,21 +119,21 @@ class REC_Processor(Processor):
 
     def test(self, evaluation=True):
 
-        self.model.eval()
         loader = self.data_loader['test']
         loss_value = []
         result_frag = []
         label_frag = []
 
         for data, label in loader:
-            
+            model = self.model_list[label]
+            model.eval()
             # get data
             data = data.float().to(self.dev)
             label = label.long().to(self.dev)
 
             # inference
             with torch.no_grad():
-                output = self.model(data)
+                output = model(data)
             result_frag.append(output.data.cpu().numpy())
 
             # get loss
@@ -144,9 +152,10 @@ class REC_Processor(Processor):
             for k in self.arg.show_topk:
                 self.show_topk(k)
 
-    def inference(self, data_list, evaluation=True):
+    def inference(self, data_list, step, evaluation=True):
 
-        self.model.eval()
+        model = self.model_list[step]
+        model.eval()
         # loader = self.data_loader['inference']
         # loss_value = []
         result_frag = []
@@ -160,7 +169,7 @@ class REC_Processor(Processor):
 
             # inference
             with torch.no_grad():
-                output = self.model(data)
+                output = model(data)
             result_frag.append(output.data.cpu().numpy())
 
             # # get loss

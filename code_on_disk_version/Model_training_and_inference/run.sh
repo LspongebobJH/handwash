@@ -5,6 +5,5 @@
 for i in {0..6}; do
     python main.py recognition \
     -c config/st_gcn/handwash/train.yaml \
-    --step ${i} \
-    > log_step_${i} 2>&1
+    --step ${i}
 done

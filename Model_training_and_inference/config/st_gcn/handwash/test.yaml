@@ -1,10 +1,11 @@
-weights: ./work_dir/recognition/handwash/ST_GCN/epoch50_model.pt
+# weights: ./work_dir/recognition/handwash/ST_GCN/epoch50_model.pt
+weights: /home/hhyg/handwash/code_on_disk_version/Model_training_and_inference/work_dir/recognition/handwash/ST_GCN_3/epoch1000_model.pt
 
 # feeder
 feeder: feeder.feeder.Feeder
 test_feeder_args:
-  data_path: ./data/handwash/test_data.npy
-  label_path: ./data/handwash/test_label.pkl
+  data_path: /home/hhyg/handwash/code_on_disk_version/Model_training_and_inference/data/handwash/test_data.npy
+  label_path: /home/hhyg/handwash/code_on_disk_version/Model_training_and_inference/data/handwash/test_label.pkl
 
 # model
 model: net.st_gcn.Model

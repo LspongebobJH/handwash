@@ -144,6 +144,18 @@ class REC_Processor(Processor):
             for k in self.arg.show_topk:
                 self.show_topk(k)
 
+            label_pred = np.argmax(self.result, 1)
+            for l in np.unique(self.label):
+                mask = (self.label == l)
+                _label_pred, _label = \
+                    label_pred[mask], self.label[mask]
+                acc = (_label_pred == _label).sum() / _label.shape[0]
+                
+                self.io.print_log('\tAcc, step{}: {:.2f}%'\
+                                  .format(l, 100 * acc))
+
+
+
     def inference(self, data_list, evaluation=True):
 
         self.model.eval()
